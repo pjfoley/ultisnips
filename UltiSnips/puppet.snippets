@@ -15,22 +15,24 @@ def get_module_namespace_and_basename():
     * /home/nikolavp/puppet/modules/collectd/manfistes/mysql.pp -> collectd::mysql
     """
     default_return = "module::name"
+    head = ''
+    tail = ''
     first_time = True
     current_file_path_without_ext = vim.eval('expand("%:p:r")') or ""
     if not current_file_path_without_ext:
         return default_return
-    parts = lf_split(current_file_path_without_ext)
+    (head, tail) = lf_split(current_file_path_without_ext)
     namespace = ''
-    while parts[0] and parts[0] != '/':
-        if parts[1] == 'init' and first_time and not namespace:
+    while head and head != '/':
+        if tail == 'init' and first_time and not namespace:
             first_time = False
-            parts = lf_split(parts[0])
+            (head, tail) = lf_split(head)
             continue
-        if parts[1] == 'manifests':
-            return lf_split(parts[0])[1] + ('::' + namespace).rstrip(':')
+        if tail == 'manifests':
+            return lf_split(head)[1] + ('::' + namespace).rstrip(':')
         else:
-            namespace = parts[1] + '::' + namespace
-        parts = lf_split(parts[0])
+            namespace = tail + '::' + namespace
+        (head, tail) = lf_split(head)
     # couldn't guess the namespace. The user is editing a raw file in no module like the site.pp file
     return default_return
 endglobal
