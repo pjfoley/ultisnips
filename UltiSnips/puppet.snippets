@@ -7,7 +7,7 @@
 global !p
 import vim
 from os.path import split as lf_split
-def get_module_namespace_and_basename():
+def get_module_namespace_and_basename(basename_only = False):
     """This function will try to guess the current class or define name you are
     trying to create. Note that for this to work you should be using the module
     structure as per the style guide. Examples inputs and it's output
@@ -29,7 +29,8 @@ def get_module_namespace_and_basename():
             (head, tail) = lf_split(head)
             continue
         if tail == 'manifests':
-            return lf_split(head)[1] + ('::' + namespace).rstrip(':')
+          (head, tail) = lf_split(head)
+          return tail if basename_only else tail + ('::' + namespace).rstrip(':')
         else:
             namespace = tail + '::' + namespace
         (head, tail) = lf_split(head)
@@ -53,6 +54,13 @@ define ${1:`!p snip.rv = get_module_namespace_and_basename()`} {
   ${0:# body}
 }
 endsnippet
+
+#### Language Fragments
+
+snippet loc "Puppet File Server" !b
+"puppet://puppet/${2:`!p snip.rv = get_module_namespace_and_basename(True)`}/${1:file name}",${0}
+endsnippet
+
 
 #################################################################
 #  Puppet Types                                                 #
